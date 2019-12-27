@@ -1,0 +1,19 @@
+{
+	"name": "supm",
+	"description": "Process manager using supervisor",
+	"version": "1.0.0",
+	"author": "Dang Duy Thanh <thanhdd.it@gmail.com>",
+	"bin": {
+		"trainjs": "./bin/index.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/trainjs/supm"
+	},
+	"main": "index.js",
+	"license": "GPL-3.0",
+	"keywords": [
+		"process manager",
+		"supervisor"
+	]
+}
