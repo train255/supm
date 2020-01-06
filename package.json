@@ -4,11 +4,11 @@
   "version": "1.0.0",
   "author": "Dang Duy Thanh <thanhdd.it@gmail.com>",
   "bin": {
-    "trainjs": "./bin/index.js"
+    "supm": "./bin/index.js"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/trainjs/supm.git"
+    "url": "git://github.com/supm/supm.git"
   },
   "main": "index.js",
   "license": "GPL-3.0",
@@ -17,9 +17,9 @@
     "supervisor"
   ],
   "bugs": {
-    "url": "https://github.com/trainjs/supm/issues"
+    "url": "https://github.com/supm/supm/issues"
   },
-  "homepage": "https://github.com/trainjs/supm#readme",
+  "homepage": "https://github.com/supm/supm#readme",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   }
