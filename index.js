@@ -2,6 +2,10 @@ const { exec } = require('child_process');
 const fs = require('fs');
 const homedir = require('os').homedir();
 const file_config = `${homedir}/.supm/services.conf`;
+const path = require('path');
+
+const templ_path = path.join(__dirname + '/supervisor.tpl');
+const templ = fs.readFileSync(templ_path).toString();
 
 module.exports = {
 	list: function (callback) {
@@ -49,9 +53,9 @@ module.exports = {
 			if (process_list) {
 				var content = "";
 				for (var i = 0; i < process_list.length; i++) {
-					content += `[program:${process_list[i].name}]\n`;
-					content += `directory=${process_list[i].directory}\n`;
-					content += `command=${process_list[i].command}\n`;
+					var service_content = templ.replace(/%%supm_name%%/g, process_list[i].name);
+					service_content = service_content.replace(/%%supm_directory%%/g, process_list[i].directory);
+					service_content = service_content.replace(/%%supm_command%%/g, process_list[i].command);
 					if (params.name == process_list[i].name) {
 						if (params.env) {
 							for(var k in params.env) {
@@ -59,16 +63,16 @@ module.exports = {
 							}
 						}
 					}
-					var environment = [];
-					for (var k in process_list[i].env) {
-						environment.push(k + "=" + process_list[i].env[k]);
+					if (process_list[i].env) {
+						var environment = [];
+						for (var k in process_list[i].env) {
+							environment.push(k + "=" + process_list[i].env[k]);
+						}
+						service_content = service_content.replace(/%%supm_environment%%/g, environment.join(','));
+					} else {
+						service_content = service_content.replace('environment=%%supm_environment%%\n', '');
 					}
-					
-					content += `environment=${environment.join(',')}\n`;
-					content += 'autostart=true\n';
-					content += 'autorestart=true\n';
-					content += `stderr_logfile=/tmp/${process_list[i].name}-stderr.log\n`;
-					content += `stdout_logfile=/tmp/${process_list[i].name}-stdout.log\n\n`;
+					content += service_content;
 				}
 				fs.writeFileSync(file_config, content);
 				exec('supervisorctl update', (err, stdout, stderr) => {
