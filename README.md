@@ -1,5 +1,9 @@
 Process manager using supervisor
 
+#### Config supervisor (/etc/supervisor.conf)
+[include]
+files = /<home-path>/.supm/*.conf
+
 #### Start Process
 ```bash
 cd my_project
