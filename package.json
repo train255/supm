@@ -1,7 +1,7 @@
 {
   "name": "supm",
   "description": "Process manager using supervisor",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": "Dang Duy Thanh <thanhdd.it@gmail.com>",
   "bin": {
     "supm": "./bin/index.js"
@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/supm/supm#readme",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+	"test": "echo \"Error: no test specified\" && exit 1",
+	"preinstall": "mkdir ~/.supm && touch ~/.supm/services.conf"
   }
 }
