@@ -31,12 +31,14 @@ module.exports = {
 					var service_name = paragraph[j].split('program:')[1].split(']')[0];
 					var command = paragraph[j].split('command=')[1].split('\n')[0];
 					var directory = paragraph[j].split('directory=')[1].split('\n')[0];
-					var environment_list = paragraph[j].split('environment=')[1].split('\n')[0].split(',');
-					var env = {};
-					environment_list.forEach(function(e){
-						env[e.split('=')[0]] = e.split('=')[1];
-					})
-					services[service_name].env = env;
+					if (paragraph[j].split('environment=')[1]) {
+						var environment_list = paragraph[j].split('environment=')[1].split('\n')[0].split(',');
+						var env = {};
+						environment_list.forEach(function (e) {
+							env[e.split('=')[0]] = e.split('=')[1];
+						})
+						services[service_name].env = env;
+					}
 					services[service_name].command = command;
 					services[service_name].directory = directory;
 				}
@@ -48,8 +50,8 @@ module.exports = {
 			}
 		});
 	},
-	restart: function(params, callback) {
-		this.list(function(err, process_list) {
+	restart: function (params, callback) {
+		this.list(function (err, process_list) {
 			if (process_list) {
 				var content = "";
 				for (var i = 0; i < process_list.length; i++) {
@@ -58,7 +60,7 @@ module.exports = {
 					service_content = service_content.replace(/%%supm_command%%/g, process_list[i].command);
 					if (params.name == process_list[i].name) {
 						if (params.env) {
-							for(var k in params.env) {
+							for (var k in params.env) {
 								process_list[i].env[k] = params.env[k];
 							}
 						}
