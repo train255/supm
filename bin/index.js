@@ -12,8 +12,6 @@ const file_config = `${homedir}/.supm/services.conf`;
 
 const templ_path = path.join(__dirname + '/../supervisor.tpl');
 
-console.log("templ_path " + templ_path)
-
 const directory = process.cwd();
 const supm = require('../index.js');
 const templ = fs.readFileSync(templ_path).toString();
@@ -24,6 +22,7 @@ const getProcessConfig = function (params) {
 	var env = params.env;
 	var service_content = templ.replace(/%%supm_name%%/g, process_name);
 	service_content = service_content.replace(/%%supm_directory%%/g, directory);
+	service_content = service_content.replace(/%%supm_home_path%%/g, homedir);
 	service_content = service_content.replace(/%%supm_command%%/g, command);
 	if (env) {
 		service_content = service_content.replace(/%%supm_environment%%/g, env);
@@ -46,6 +45,7 @@ const checkProcessList = function (params) {
 				break;
 			} else {
 				var service_content = templ.replace(/%%supm_name%%/g, process_list[i].name);
+				service_content = service_content.replace(/%%supm_home_path%%/g, homedir);
 				service_content = service_content.replace(/%%supm_directory%%/g, process_list[i].directory);
 				service_content = service_content.replace(/%%supm_command%%/g, process_list[i].command);
 				if (process_list[i].env) {
@@ -145,7 +145,7 @@ if ((process.argv[2] == "start" || process.argv[2] == "s") && process.argv[3]) {
 					process_name: process_name,
 					process_list: process_list
 				});
-				if (content) {
+				if (content || content == "") {
 					content += getProcessConfig({
 						process_name: process_name,
 						command: command,

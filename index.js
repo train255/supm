@@ -57,6 +57,7 @@ module.exports = {
 				var content = "";
 				for (var i = 0; i < process_list.length; i++) {
 					var service_content = templ.replace(/%%supm_name%%/g, process_list[i].name);
+					service_content = service_content.replace(/%%supm_home_path%%/g, homedir);
 					service_content = service_content.replace(/%%supm_directory%%/g, process_list[i].directory);
 					service_content = service_content.replace(/%%supm_command%%/g, process_list[i].command);
 					if (params.name == process_list[i].name) {
