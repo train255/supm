@@ -30,18 +30,20 @@ module.exports = {
 				let paragraph = file.split("\n\n");
 				for (var j = 0; j < paragraph.length - 1; j++) {
 					var service_name = paragraph[j].split('program:')[1].split(']')[0];
-					var command = paragraph[j].split('command=')[1].split('\n')[0];
-					var directory = paragraph[j].split('directory=')[1].split('\n')[0];
-					if (paragraph[j].split('environment=')[1]) {
-						var environment_list = paragraph[j].split('environment=')[1].split('\n')[0].split(',');
-						var env = {};
-						environment_list.forEach(function (e) {
-							env[e.split('=')[0]] = e.split('=')[1];
-						})
-						services[service_name].env = env;
+					if (services[service_name]) {
+						var command = paragraph[j].split('command=')[1].split('\n')[0];
+						var directory = paragraph[j].split('directory=')[1].split('\n')[0];
+						if (paragraph[j].split('environment=')[1]) {
+							var environment_list = paragraph[j].split('environment=')[1].split('\n')[0].split(',');
+							var env = {};
+							environment_list.forEach(function (e) {
+								env[e.split('=')[0]] = e.split('=')[1];
+							})
+							services[service_name].env = env;
+						}
+						services[service_name].command = command;
+						services[service_name].directory = directory;
 					}
-					services[service_name].command = command;
-					services[service_name].directory = directory;
 				}
 				let process_list = [];
 				for (var k in services) {
