@@ -77,7 +77,7 @@ if ((process.argv[2] == "start" || process.argv[2] == "s") && process.argv[3]) {
 			process_name = process.argv[i + 1];
 		}
 		if (process.argv[i] == "-env") {
-			env = process.argv[i + 1];
+			env = `HOME=${homedir},` + process.argv[i + 1];
 		}
 		if (process.argv[i] == "-num" && Number(process.argv[i + 1]) > 1) {
 			num = Number(process.argv[i + 1]);

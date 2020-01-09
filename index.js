@@ -1,7 +1,8 @@
 const { exec } = require('child_process');
 const fs = require('fs');
 const homedir = require('os').homedir();
-const file_config = `${homedir}/.supm/services.conf`;
+const home_path = process.env.HOME ? process.env.HOME : homedir;
+const file_config = `${home_path}/.supm/services.conf`;
 const path = require('path');
 
 const templ_path = path.join(__dirname + '/supervisor.tpl');
