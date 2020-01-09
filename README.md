@@ -27,7 +27,7 @@ supervisorctl status
 
 #### Log Process
 ```bash
-supervisorctl tail process-name
+supervisorctl tail -f process-name
 ```
 
 #### Delete Process

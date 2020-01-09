@@ -27,9 +27,9 @@ module.exports = {
 					};
 				}
 				var file = fs.readFileSync(file_config).toString();
-				let paragraph = file.split("\n\n");
+				let paragraph = file.split("\n[program:");
 				for (var j = 0; j < paragraph.length - 1; j++) {
-					var service_name = paragraph[j].split('program:')[1].split(']')[0];
+					var service_name = paragraph[j].split(']')[0];
 					if (services[service_name]) {
 						var command = paragraph[j].split('command=')[1].split('\n')[0];
 						var directory = paragraph[j].split('directory=')[1].split('\n')[0];
