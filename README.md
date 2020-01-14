@@ -1,23 +1,39 @@
 Process manager using supervisor
 
-### Create File
+#### Installation
+```bash
+# global package
+npm install pm2@latest -g
+# local package
+npm install pm2@latest
+```
+
+#### Create File
 ```bash
 mkdir -p ~/.supm/logs
 touch ~/.supm/services.conf
 ```
 
+
 #### Config supervisor (/etc/supervisor.conf)
+```
 [unix_http_server]
 file=~/.supm/supervisor.sock
 chown=yourusername:yourusername
 ...
 [include]
 files = /<home-path>/.supm/*.conf
+```
 
 #### Start Process
 ```bash
 cd my_project
 supm start "node index.js" -name "process-name" -num 5 -env "PORT=6999" -increase "PORT"
+```
+
+#### Help
+```bash
+supm -h
 ```
 
 #### List Processes

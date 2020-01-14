@@ -16,6 +16,9 @@ const directory = process.cwd();
 const supm = require('../index.js');
 const templ = fs.readFileSync(templ_path).toString();
 
+SUPM_LIB_PATH = path.join(path.dirname(fs.realpathSync(__filename)), '../');
+
+
 const getProcessConfig = function (params) {
 	var process_name = params.process_name;
 	var command = params.command;
@@ -193,5 +196,12 @@ if ((process.argv[2] == "start" || process.argv[2] == "s") && process.argv[3]) {
 				}
 			});
 		}
+	});
+} else if (process.argv[2] == "-v" || process.argv[2] == "-version") {
+	console.log("supm " + require(SUPM_LIB_PATH + 'package.json').version);
+} else if (process.argv[2] == "-h" || process.argv[2] == "-help") {
+	fs.readFile(path.dirname(fs.realpathSync(__filename)) + '/help', function (err, data) {
+		if (err) throw err;
+		console.log(data.toString());
 	});
 }
