@@ -34,3 +34,19 @@ supervisorctl tail -f process-name
 ```bash
 supervisorctl remove process-name
 ```
+
+### Programmatic
+```javascript
+const supm = require('supm');
+supm.list((err, process_list) => {
+
+})
+supm.restart({
+	name: "process-name",
+	"env": {
+		"PORT": "5000"
+	}
+}, (err) => {
+	
+});
+```

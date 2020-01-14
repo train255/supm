@@ -1,14 +1,14 @@
 {
   "name": "supm",
   "description": "Process manager using supervisor",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "author": "Dang Duy Thanh <thanhdd.it@gmail.com>",
   "bin": {
     "supm": "./bin/index.js"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/supm/supm.git"
+    "url": "git://github.com/train255/supm.git"
   },
   "main": "index.js",
   "license": "GPL-3.0",
@@ -17,9 +17,9 @@
     "supervisor"
   ],
   "bugs": {
-    "url": "https://github.com/supm/supm/issues"
+    "url": "https://github.com/train255/supm/issues"
   },
-  "homepage": "https://github.com/supm/supm#readme",
+  "homepage": "https://github.com/train255/supm#readme",
   "scripts": {
 	"test": "echo \"Error: no test specified\" && exit 1"
   }

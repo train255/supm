@@ -54,41 +54,51 @@ module.exports = {
 		});
 	},
 	restart: function (params, callback) {
-		this.list(function (err, process_list) {
-			if (process_list) {
-				var content = "";
-				for (var i = 0; i < process_list.length; i++) {
-					var service_content = templ.replace(/%%supm_name%%/g, process_list[i].name);
-					service_content = service_content.replace(/%%supm_home_path%%/g, homedir);
-					service_content = service_content.replace(/%%supm_directory%%/g, process_list[i].directory);
-					service_content = service_content.replace(/%%supm_command%%/g, process_list[i].command);
-					if (params.name == process_list[i].name) {
-						if (params.env) {
-							for (var k in params.env) {
-								process_list[i].env[k] = params.env[k];
+		if (params.name && Object.keys(params).length == 1) {
+			exec(`supervisorctl restart ${params.name}`, (err, stdout, stderr) => {
+				if (err) {
+					callback(err);
+				} else {
+					callback();
+				}
+			});
+		} else {
+			this.list(function (err, process_list) {
+				if (process_list) {
+					var content = "";
+					for (var i = 0; i < process_list.length; i++) {
+						var service_content = templ.replace(/%%supm_name%%/g, process_list[i].name);
+						service_content = service_content.replace(/%%supm_home_path%%/g, homedir);
+						service_content = service_content.replace(/%%supm_directory%%/g, process_list[i].directory);
+						service_content = service_content.replace(/%%supm_command%%/g, process_list[i].command);
+						if (params.name == process_list[i].name) {
+							if (params.env) {
+								for (var k in params.env) {
+									process_list[i].env[k] = params.env[k];
+								}
 							}
 						}
-					}
-					if (process_list[i].env) {
-						var environment = [];
-						for (var k in process_list[i].env) {
-							environment.push(k + "=" + process_list[i].env[k]);
+						if (process_list[i].env) {
+							var environment = [];
+							for (var k in process_list[i].env) {
+								environment.push(k + "=" + process_list[i].env[k]);
+							}
+							service_content = service_content.replace(/%%supm_environment%%/g, environment.join(','));
+						} else {
+							service_content = service_content.replace('environment=%%supm_environment%%\n', '');
 						}
-						service_content = service_content.replace(/%%supm_environment%%/g, environment.join(','));
-					} else {
-						service_content = service_content.replace('environment=%%supm_environment%%\n', '');
+						content += service_content;
 					}
-					content += service_content;
+					fs.writeFileSync(file_config, content);
+					exec('supervisorctl update', (err, stdout, stderr) => {
+						if (err) {
+							callback(err);
+						} else {
+							callback();
+						}
+					});
 				}
-				fs.writeFileSync(file_config, content);
-				exec('supervisorctl update', (err, stdout, stderr) => {
-					if (err) {
-						callback(err);
-					} else {
-						callback();
-					}
-				});
-			}
-		})
+			});
+		}
 	}
 }
