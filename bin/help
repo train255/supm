@@ -1,15 +1,15 @@
 Usage: supm [cmd] [options]
 
 Commands
-	start COMMAND [options]		start and daemonize an app
-	-h, -help					output usage information
-	-v, -version				print supm version
+   start COMMAND [options]      start and daemonize an app
+   -h, -help                    output usage information
+   -v, -version                 print supm version
 
 Options:
-  -name <name>					set a name for the process in the process list
-  -num <number>					launch [number] instances
-  -env <environment_name>		specify which set of environment variables from ecosystem file must be injected
-  -increase <env_name>			list of environment that automatically increase
+  -name <name>                  set a name for the process in the process list
+  -num <number>                 launch [number] instances
+  -env <environment_name>       specify which set of environment variables from ecosystem file must be injected
+  -increase <env_name>          list of environment that automatically increase
 
 Examples:
     supm start "node index.js" -name "process-name" -num 5 -env "PORT=6999,id=1" -increase "PORT,id"

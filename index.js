@@ -62,43 +62,42 @@ module.exports = {
 					callback();
 				}
 			});
-		} else {
-			this.list(function (err, process_list) {
-				if (process_list) {
-					var content = "";
-					for (var i = 0; i < process_list.length; i++) {
-						var service_content = templ.replace(/%%supm_name%%/g, process_list[i].name);
-						service_content = service_content.replace(/%%supm_home_path%%/g, homedir);
-						service_content = service_content.replace(/%%supm_directory%%/g, process_list[i].directory);
-						service_content = service_content.replace(/%%supm_command%%/g, process_list[i].command);
-						if (params.name == process_list[i].name) {
-							if (params.env) {
-								for (var k in params.env) {
-									process_list[i].env[k] = params.env[k];
-								}
-							}
-						}
-						if (process_list[i].env) {
-							var environment = [];
-							for (var k in process_list[i].env) {
-								environment.push(k + "=" + process_list[i].env[k]);
-							}
-							service_content = service_content.replace(/%%supm_environment%%/g, environment.join(','));
-						} else {
-							service_content = service_content.replace('environment=%%supm_environment%%\n', '');
-						}
-						content += service_content;
-					}
-					fs.writeFileSync(file_config, content);
-					exec('supervisorctl update', (err, stdout, stderr) => {
-						if (err) {
-							callback(err);
-						} else {
-							callback();
-						}
-					});
+		} else if (params.name && params.env) {
+			var file = fs.readFileSync(file_config).toString();
+			let paragraph = file.split("[program:");
+			let old_content = null;
+			for (var j = 0; j < paragraph.length; j++) {
+				var service_name = paragraph[j].split(']')[0];
+				if (service_name == params.name) {
+					old_content = paragraph[j];
+					break;
 				}
-			});
+			}
+
+			if (old_content) {
+				var environment_list = paragraph[j].split('environment=')[1].split('\n')[0];
+				var new_environment_list = paragraph[j].split('environment=')[1].split('\n')[0];
+				for (var k in params.env) {
+					environment_list.split(',').forEach(function (e) {
+						var attr_name = e.split('=')[0];
+						if (k == attr_name) {
+							new_environment_list = new_environment_list.replace(e, k + "=" + params.env[k]);
+						}
+					})
+				}
+				new_content = old_content.replace(environment_list, new_environment_list);
+				var new_file = file.replace(old_content, new_content);
+				fs.writeFileSync(file_config, new_file);
+				exec('supervisorctl update', (err, stdout, stderr) => {
+					if (err) {
+						callback(err);
+					} else {
+						callback();
+					}
+				});
+			} else {
+				callback("Not found service name");
+			}
 		}
 	}
 }
