@@ -3,10 +3,6 @@ const fs = require('fs');
 const homedir = require('os').homedir();
 const home_path = process.env.HOME ? process.env.HOME : homedir;
 const file_config = `${home_path}/.supm/services.conf`;
-const path = require('path');
-
-const templ_path = path.join(__dirname + '/supervisor.tpl');
-const templ = fs.readFileSync(templ_path).toString();
 
 module.exports = {
 	list: function (callback) {
@@ -85,7 +81,7 @@ module.exports = {
 						}
 					})
 				}
-				new_content = old_content.replace(environment_list, new_environment_list);
+				var new_content = old_content.replace(environment_list, new_environment_list);
 				var new_file = file.replace(old_content, new_content);
 				fs.writeFileSync(file_config, new_file);
 				exec('supervisorctl update', (err, stdout, stderr) => {
