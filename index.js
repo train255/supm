@@ -2,7 +2,7 @@ const { exec } = require('child_process');
 const fs = require('fs');
 const homedir = require('os').homedir();
 const home_path = process.env.HOME ? process.env.HOME : homedir;
-const file_config = `${home_path}/.supm/services.conf`;
+const file_config = `${home_path}/.supm/services`;
 
 module.exports = {
 	list: function (callback) {
@@ -22,33 +22,41 @@ module.exports = {
 						status: columns[1]
 					};
 				}
-				var file = fs.readFileSync(file_config).toString();
-				let paragraph = file.split("[program:");
-				for (var j = 0; j < paragraph.length; j++) {
-					var service_name = paragraph[j].split(']')[0];
-					if (services[service_name]) {
-						var command = paragraph[j].split('command=')[1].split('\n')[0];
-						var directory = paragraph[j].split('directory=')[1].split('\n')[0];
-						if (paragraph[j].split('environment=')[1]) {
-							var environment_list = paragraph[j].split('environment=')[1].split('\n')[0].split(',');
-							var env = {};
-							environment_list.forEach(function (e) {
-								env[e.split('=')[0]] = e.split('=')[1];
-							})
-							services[service_name].env = env;
+
+				fs.readdir(file_config, function (err, files) {
+					if (err) {
+						console.log("Error getting directory information.");
+						callback(err);
+					} else {
+						files.forEach(function (file) {
+							const content = fs.readFileSync(file_config + '/' + file).toString();
+							const service_name = content.split("[program:")[1].split(']')[0];
+							if (services[service_name]) {
+								var command = content.split('command=')[1].split('\n')[0];
+								var directory = content.split('directory=')[1].split('\n')[0];
+								if (content.split('environment=')[1]) {
+									var environment_list = content.split('environment=')[1].split('\n')[0].split(',');
+									var env = {};
+									environment_list.forEach(function (e) {
+										env[e.split('=')[0]] = e.split('=')[1];
+									})
+									services[service_name].env = env;
+								}
+								services[service_name].command = command;
+								services[service_name].directory = directory;
+							}
+						})
+						let process_list = [];
+						for (var k in services) {
+							process_list.push(services[k]);
 						}
-						services[service_name].command = command;
-						services[service_name].directory = directory;
+						callback(null, process_list);
 					}
-				}
-				let process_list = [];
-				for (var k in services) {
-					process_list.push(services[k]);
-				}
-				callback(null, process_list);
+				})
 			}
 		});
 	},
+
 	restart: function (params, callback) {
 		if (params.name && Object.keys(params).length == 1) {
 			exec(`supervisorctl restart ${params.name}`, (err, stdout, stderr) => {
@@ -59,20 +67,15 @@ module.exports = {
 				}
 			});
 		} else if (params.name && params.env) {
-			var file = fs.readFileSync(file_config).toString();
-			let paragraph = file.split("[program:");
 			let old_content = null;
-			for (var j = 0; j < paragraph.length; j++) {
-				var service_name = paragraph[j].split(']')[0];
-				if (service_name == params.name) {
-					old_content = paragraph[j];
-					break;
-				}
+			const file_name = file_config + '/' + params.name + '.conf';
+			if (fs.existsSync(file_name)) {
+				old_content = fs.readFileSync(file_name).toString();
 			}
 
 			if (old_content) {
-				var environment_list = paragraph[j].split('environment=')[1].split('\n')[0];
-				var new_environment_list = paragraph[j].split('environment=')[1].split('\n')[0];
+				var environment_list = old_content.split('environment=')[1].split('\n')[0];
+				var new_environment_list = old_content.split('environment=')[1].split('\n')[0];
 				for (var k in params.env) {
 					environment_list.split(',').forEach(function (e) {
 						var attr_name = e.split('=')[0];
@@ -82,8 +85,7 @@ module.exports = {
 					})
 				}
 				var new_content = old_content.replace(environment_list, new_environment_list);
-				var new_file = file.replace(old_content, new_content);
-				fs.writeFileSync(file_config, new_file);
+				fs.writeFileSync(file_name, new_content);
 				exec('supervisorctl update', (err, stdout, stderr) => {
 					if (err) {
 						callback(err);

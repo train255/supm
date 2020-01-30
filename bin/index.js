@@ -8,7 +8,7 @@ const homedir = require('os').homedir();
 if (!fs.existsSync(`${homedir}/.supm`)) {
 	fs.mkdirSync(`${homedir}/.supm`)
 }
-const file_config = `${homedir}/.supm/services.conf`;
+const file_config = `${homedir}/.supm/services`;
 
 const templ_path = path.join(__dirname + '/../supervisor.tpl');
 
@@ -35,39 +35,6 @@ const getProcessConfig = function (params) {
 	console.log(service_content);
 	return service_content;
 }
-
-const checkProcessList = function (params) {
-	var process_name = params.process_name;
-	var process_list = params.process_list;
-	var content = "";
-	var is_exist = false;
-	if (process_list) {
-		for (var i = 0; i < process_list.length; i++) {
-			if (process_name && process_name == process_list[i].name) {
-				is_exist = true;
-				break;
-			} else {
-				var service_content = templ.replace(/%%supm_name%%/g, process_list[i].name);
-				service_content = service_content.replace(/%%supm_home_path%%/g, homedir);
-				service_content = service_content.replace(/%%supm_directory%%/g, process_list[i].directory);
-				service_content = service_content.replace(/%%supm_command%%/g, process_list[i].command);
-				if (process_list[i].env) {
-					var environment = [];
-					for (var k in process_list[i].env) {
-						environment.push(k + "=" + process_list[i].env[k]);
-					}
-					service_content = service_content.replace(/%%supm_environment%%/g, environment.join(','));
-				} else {
-					service_content = service_content.replace('environment=%%supm_environment%%\n', '');
-				}
-				content += service_content;
-			}
-		}
-	}
-	if (is_exist) return null;
-	else return content;
-}
-
 
 if ((process.argv[2] == "start" || process.argv[2] == "s") && process.argv[3]) {
 	var command = process.argv[3];
@@ -118,85 +85,41 @@ if ((process.argv[2] == "start" || process.argv[2] == "s") && process.argv[3]) {
 		}
 	}
 
-	supm.list(function (err, process_list) {
-		if (process_list) {
-			if (num) {
-				var content = checkProcessList({
-					process_list: process_list
-				});
-				for (var i = 0; i < num; i++) {
+	fs.readdir(file_config, function (err, files) {
+		if (num) {
+			for (var i = 0; i < num; i++) {
+				let child_process_name = process_name + "-" + i;
+				if (files.indexOf(child_process_name + '.conf') > -1) {
+					console.log(child_process_name + " is exist");
+				} else {
 					var _env = [];
 					for (var k in new_env[i]) {
 						_env.push(k + "=" + new_env[i][k]);
 					}
-					content += getProcessConfig({
-						process_name: process_name + "-" + i,
+					let content = getProcessConfig({
+						process_name: child_process_name,
 						command: command,
 						env: _env.join(",")
-					})
-				}
-				fs.writeFileSync(file_config, content);
-				exec('supervisorctl update', (err, stdout, stderr) => {
-					if (err) {
-						console.error(err);
-					} else {
-						console.log("Add process success")
-					}
-				});
-			} else {
-				var content = checkProcessList({
-					process_name: process_name,
-					process_list: process_list
-				});
-				if (content || content == "") {
-					content += getProcessConfig({
-						process_name: process_name,
-						command: command,
-						env: env
-					})
-					fs.writeFileSync(file_config, content);
-					exec('supervisorctl update', (err, stdout, stderr) => {
-						if (err) {
-							console.error(err);
-						} else {
-							console.log("Add process success")
-						}
 					});
-				} else {
-					console.error(`Service ${process_name} is exist`);
+					fs.writeFileSync(file_config + '/' + child_process_name + '.conf', content);
 				}
 			}
 		} else {
-			var content = "";
-			if (num) {
-				for (var i = 0; i < num; i++) {
-					var _env = [];
-					for (var k in new_env[i]) {
-						_env.push(k + "=" + new_env[i][k]);
-					}
-					content += getProcessConfig({
-						process_name: process_name + "-" + i,
-						command: command,
-						env: _env
-					})
-				}
-			} else {
-				content += getProcessConfig({
-					process_name: process_name,
-					command: command,
-					env: env
-				})
-			}
-			fs.writeFileSync(file_config, content);
-			exec('supervisorctl update', (err, stdout, stderr) => {
-				if (err) {
-					console.error(err);
-				} else {
-					console.log("Add process success")
-				}
+			let content = getProcessConfig({
+				process_name: process_name,
+				command: command,
+				env: env
 			});
+			fs.writeFileSync(file_config + '/' + process_name + '.conf', content);
 		}
-	});
+		exec('supervisorctl update', (err, stdout, stderr) => {
+			if (err) {
+				console.error(err);
+			} else {
+				console.log("Add process success")
+			}
+		});
+	})
 } else if (process.argv[2] == "-v" || process.argv[2] == "-version") {
 	console.log("supm " + require(SUPM_LIB_PATH + 'package.json').version);
 } else if (process.argv[2] == "-h" || process.argv[2] == "-help") {

@@ -11,7 +11,7 @@ npm install pm2@latest
 #### Create File
 ```bash
 mkdir -p ~/.supm/logs
-touch ~/.supm/services.conf
+mkdir -p ~/.supm/services
 ```
 
 
@@ -22,7 +22,7 @@ file=~/.supm/supervisor.sock
 chown=yourusername:yourusername
 ...
 [include]
-files = /<home-path>/.supm/*.conf
+files = /<home-path>/.supm/services/*.conf
 ```
 
 #### Start Process
