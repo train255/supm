@@ -1,7 +1,7 @@
 {
   "name": "supm",
   "description": "Process manager using supervisor",
-  "version": "1.0.21",
+  "version": "1.0.22",
   "author": "Dang Duy Thanh <thanhdd.it@gmail.com>",
   "bin": {
     "supm": "./bin/index.js"
