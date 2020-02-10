@@ -86,19 +86,12 @@ module.exports = {
 				}
 				var new_content = old_content.replace(environment_list, new_environment_list);
 				fs.writeFileSync(file_name, new_content);
-				exec('supervisorctl reread', (err, stdout, stderr) => {
+				exec('supervisorctl update', (err, stdout, stderr) => {
 					if (err) {
 						callback(err);
 					} else {
 						callback();
 					}
-					exec(`supervisorctl restart ${params.name}`, (err, stdout, stderr) => {
-						if (err) {
-							callback(err);
-						} else {
-							callback();
-						}
-					});
 				});
 			} else {
 				callback("Not found service name");
