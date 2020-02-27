@@ -8,5 +8,6 @@ stderr_logfile=%%supm_home_path%%/.supm/logs/%%supm_name%%-stderr.log
 stdout_logfile=%%supm_home_path%%/.supm/logs/%%supm_name%%-stdout.log
 stderr_logfile_maxbytes=500KB
 stdout_logfile_maxbytes=500KB
-stopasgroup=true
+killasgroup=true
+stopsignal=KILL
 
