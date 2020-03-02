@@ -3,9 +3,9 @@ Process manager using supervisor
 #### Installation
 ```bash
 # global package
-npm install pm2@latest -g
+npm install supm@latest -g
 # local package
-npm install pm2@latest
+npm install supm@latest
 ```
 
 #### Create File
@@ -19,10 +19,34 @@ mkdir -p ~/.supm/services
 ```
 [unix_http_server]
 file=~/.supm/supervisor.sock
+chmod=0700                       ; sockef file mode (default 0700)
 chown=yourusername:yourusername
-...
+
+[supervisord]
+logfile=/var/log/supervisor/supervisord.log ; (main log file;default $CWD/supervisord.log)
+pidfile=/var/run/supervisord.pid ; (supervisord pidfile;default supervisord.pid)
+childlogdir=/var/log/supervisor            ; ('AUTO' child log dir, default $TEMP)
+
+; the below section must remain in the config file for RPC
+; (supervisorctl/web interface) to work, additional interfaces may be
+; added by defining them in separate rpcinterface: sections
+[rpcinterface:supervisor]
+supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
+
+[supervisorctl]
+serverurl=unix:///var/run/supervisor.sock ; use a unix:// URL  for a unix socket
+
+
 [include]
 files = /<home-path>/.supm/services/*.conf
+```
+
+### Stop and start supervisord
+```bash
+ps -aux | grep supervisord
+kill -9 <PID>
+sudo supervisord -c /etc/supervisor.conf
+sudo chown -R yourusername:yourusername /var/log/supervisor
 ```
 
 #### Start Process
